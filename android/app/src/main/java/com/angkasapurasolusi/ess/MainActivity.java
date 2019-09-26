@@ -1,4 +1,4 @@
-package com.example.flutter_playground;
+package com.angkasapurasolusi.ess;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

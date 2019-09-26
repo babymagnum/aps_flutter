@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
@@ -7,6 +10,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'splash_screen.dart';
 import '../model/getProfile/item_get_profile.dart';
 import '../model/getProfile/get_profile.dart';
+import '../networking/service/authentication_networking.dart';
 
 class Profil extends StatefulWidget {
   Profil(this.isDetailKaryawan, this.itemProfile);
@@ -23,7 +27,7 @@ class ProfilState extends State<Profil> {
   
   ItemGetProfile itemProfile;
   bool isDetailKaryawan;
-  var preference;
+  SharedPreferences preference;
 
   @override
   void initState() {
@@ -86,9 +90,7 @@ class ProfilState extends State<Profil> {
     } else if (profile.status == 401) {
       preference.setString(Constant.IS_LOGIN, "false");
       Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-        ModalRoute.withName('/SplashScreen'));
+      Navigator.of(context).popUntil(ModalRoute.withName('/'));
     } else {
       Fluttertoast.showToast(msg: profile.message);
     }
@@ -99,6 +101,28 @@ class ProfilState extends State<Profil> {
     var profile = await InformationNetworking().getProfile();
     hideLoading();
     setProfileView(profile);
+  }
+
+  logout() async {
+    showLoading();
+    var logout = await AuthenticationNetworking().logout();
+    hideLoading();
+
+    if (logout.status == 200) {
+      preference.setString(Constant.IS_LOGIN, "false");
+      Fluttertoast.showToast(msg: "Session anda berakhir");
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => RootView()),
+          (Route<dynamic> route) => false);
+    } else if (logout.status == 401) {
+      preference.setString(Constant.IS_LOGIN, "false");
+      Fluttertoast.showToast(msg: "Session anda berakhir");
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (context) => RootView()),
+          (Route<dynamic> route) => false);
+    } else {
+      Fluttertoast.showToast(msg: logout.message);
+    }
   }
 
   Widget body() => SingleChildScrollView(
@@ -258,39 +282,93 @@ class ProfilState extends State<Profil> {
         ),
       );
 
+  showDialogKeluar() {
+    showDialog(context: context, builder: (BuildContext context) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        child: Dialog(
+          elevation: 0.2,
+          backgroundColor: Colors.transparent,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(5))
+            ),
+            height: 106,
+            child: Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text("Yakin ingin keluar dari aplikasi APS?", textAlign: TextAlign.center,),
+                ),
+                Container(
+                  height: 1,
+                  color: Colors.black12,
+                ),
+                InkWell(
+                  onTap: () => logout(),
+                  child: Padding(
+                    child: Text("Ya"),
+                    padding: EdgeInsets.all(5)
+                  ),
+                ),
+                Container(
+                  height: 1,
+                  color: Colors.black12,
+                ),
+                InkWell(
+                  onTap: () => Navigator.of(context, rootNavigator: true).pop(),
+                  child: Padding(
+                    padding: EdgeInsets.all(5),
+                    child: Text("Tidak"),
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
+
   Widget wAction() => Visibility(
     visible: !isDetailKaryawan,
     child: Container(
       margin: EdgeInsets.only(left: 14.2, right: 14.2, bottom: 16),
       child: Column(
         children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(top: 9, bottom: 9, left: 15, right: 15),
-            child: Row(
-              children: <Widget>[
-                Image.asset("${Constant.image}icUbahKataSandi.png", width: 11.7, height: 13.3,),
-                SizedBox(width: 7),
-                Expanded(
-                  child: Text("Ubah Kata Sandi", style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.brownishGrey), fontSize: 10),)
-                ),
-                Image.asset("${Constant.image}icExpandMore.png", width: 22, height: 22,),
-              ],
+          InkWell(
+            child: Padding(
+              padding: EdgeInsets.only(top: 9, bottom: 9, left: 15, right: 15),
+              child: Row(
+                children: <Widget>[
+                  Image.asset("${Constant.image}icUbahKataSandi.png", width: 11.7, height: 13.3,),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Text("Ubah Kata Sandi", style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.brownishGrey), fontSize: 10),)
+                  ),
+                  Image.asset("${Constant.image}icExpandMore.png", width: 18, height: 18,),
+                ],
+              ),
             ),
           ),
           Container(
             height: 1,
             color: Colors.black12,
           ),
-          Padding(
-            padding: EdgeInsets.only(top: 9, bottom: 9, left: 15, right: 15),
-            child: Row(
-              children: <Widget>[
-                Image.asset("${Constant.image}icLogout.png", width: 11.7, height: 13.3,),
-                SizedBox(width: 7),
-                Expanded(
-                  child: Text("Keluar", style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.brownishGrey), fontSize: 10),)
-                ),
-              ],
+          InkWell(
+            onTap: () => showDialogKeluar(),
+            child: Padding(
+              padding: EdgeInsets.only(top: 9, bottom: 9, left: 15, right: 15),
+              child: Row(
+                children: <Widget>[
+                  Image.asset("${Constant.image}icLogout.png", width: 11.7, height: 13.3,),
+                  SizedBox(width: 7),
+                  Expanded(
+                    child: Text("Keluar", style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.brownishGrey), fontSize: 10),)
+                  ),
+                ],
+              ),
             ),
           ),
         ],

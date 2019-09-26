@@ -103,8 +103,7 @@ class FilterDaftarKaryawanState extends State<FilterDaftarKaryawan> {
       preferences.setString(Constant.IS_LOGIN, "false");
       Fluttertoast.showToast(msg: "Session anda berakhir");
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-        ModalRoute.withName('/SplashScreen'));
+        MaterialPageRoute(builder: (context) => SplashScreen()), (Route<dynamic> route) => false);
     } else {
       Fluttertoast.showToast(msg: gender.message);
     }

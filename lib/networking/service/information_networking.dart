@@ -1,9 +1,10 @@
-import '../../constant/Constant.dart';
 import 'base_service.dart';
+import 'package:dio/dio.dart';
+// model
+import '../../constant/Constant.dart';
 import '../../model/getDashboard/get_dashboard.dart';
 import '../../model/getLatestNews/get_latest_news.dart';
 import '../../model/getAllNews/get_all_news.dart';
-import 'package:dio/dio.dart';
 import '../../model/getNotificationList/get_notification_list.dart';
 import '../../model/getProfile/get_profile.dart';
 import '../../model/getEmpList/get_emp_list.dart';
@@ -11,7 +12,12 @@ import '../../model/getUnit/get_unit.dart';
 import '../../model/getWorkarea/get_workarea.dart';
 import '../../model/getGender/get_gender.dart';
 import '../../model/getOrder/get_order.dart';
+import '../../model/getPreparePresence/get_prepare_presence.dart';
+import '../../model/getPresenceList/get_presence_list.dart';
+// request
 import '../request/get_emp_list_request.dart';
+import '../request/get_emp_list_request.dart';
+import '../request/get_presence_list_request.dart';
 
 class InformationNetworking extends BaseService {
   Future<GetDashboard> getDashboard() async {
@@ -59,5 +65,13 @@ class InformationNetworking extends BaseService {
 
   Future<GetOrder> getOrder() async {
     return await get("${Constant.base_url}api/getOrder");
+  }
+
+  Future<GetPreparePresence> getPreparePresence() async {
+    return await post<GetPreparePresence>("${Constant.base_url}api/getPreparePresence");
+  }
+
+  Future<GetPresenceList> getPresenceList(GetPresenceListRequest body) async {
+    return await postFormData("${Constant.base_url}api/getPresenceList", body.getBody());
   }
 }

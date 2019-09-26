@@ -13,6 +13,9 @@ import '../../model/getUnit/get_unit.dart';
 import '../../model/getWorkarea/get_workarea.dart';
 import '../../model/getGender/get_gender.dart';
 import '../../model/getOrder/get_order.dart';
+import '../../model/success/success.dart';
+import '../../model/getPreparePresence/get_prepare_presence.dart';
+import '../../model/getPresenceList/get_presence_list.dart';
 
 class BaseService {
   Future<Map<String, dynamic>> getHeaders() async {
@@ -118,6 +121,12 @@ class BaseService {
       return GetGender.fromJson(json) as T;
     } else if (T == GetOrder) {
       return GetOrder.fromJson(json) as T;
+    } else if (T == Success) {
+      return Success.fromJson(json) as T;
+    } else if (T == GetPreparePresence) {
+      return GetPreparePresence.fromJson(json) as T;
+    } else if (T == GetPresenceList) {
+      return GetPresenceList.fromJson(json) as T;
     } else {
       throw Exception("Unknown class");
     }

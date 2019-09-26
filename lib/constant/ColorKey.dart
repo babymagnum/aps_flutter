@@ -11,6 +11,7 @@ class ColorKey {
     static const nastyGreen = 0xff7eb73d;
     static const greyishBrown = 0xff474747;
     static const paleGrey = 0xfff5f6f7;
+    static const paleRed = 0xffe23d3d;
     static const black = 0xff333333;
     static const veryLightPinkThree = 0xffd5d5d5;
     static const veryLightPinkFour = 0xffdbdbdb;
