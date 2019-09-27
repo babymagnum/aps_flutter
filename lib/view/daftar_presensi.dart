@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_playground/networking/request/get_presence_list_request.dart';
+import 'package:flutter_playground/view/main.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
 import 'splash_screen.dart';
@@ -9,11 +10,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class DaftarPresensi extends StatefulWidget {
+
+  DaftarPresensi(this.isFromPresence);
+
+  bool isFromPresence;
+
   @override
-  DaftarPresensiState createState() => DaftarPresensiState();
+  DaftarPresensiState createState() => DaftarPresensiState(isFromPresence);
 }
 
 class DaftarPresensiState extends State<DaftarPresensi> {
+
+  DaftarPresensiState(this.isFromPresence);
+
+  bool isFromPresence;
 
   // properties
   SharedPreferences preference;
@@ -182,36 +192,49 @@ class DaftarPresensiState extends State<DaftarPresensi> {
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: ThemeData(
-        canvasColor: Colors.transparent
-      ),
-      child: Scaffold(
-        backgroundColor: Color(ColorKey.default_bg),
-        appBar: AppBar(
-          automaticallyImplyLeading: false,
-          title: Row(
-            children: <Widget>[
-              InkWell(
-                onTap: () => Navigator.of(context).pop(),
-                child: Image.asset("${Constant.image}icBack.png", width: 9.1, height: 16,),
-              ),
-              SizedBox(width: 14.9,),
-              Expanded(
-                child: Text(
-                  "Daftar Karyawan",
-                  style: TextStyle(fontSize: 12, fontFamily: "Roboto", fontWeight: FontWeight.w500),
-                )
-              ),
-              InkWell(
-                onTap: () => showBottomSheetFilter(),
-                child: Image.asset("${Constant.image}icFilter.png", width: 16, height: 16,),
-              )
-            ],
-          ),
+    return WillPopScope(
+      child: Theme(
+        data: ThemeData(
+          canvasColor: Colors.transparent
         ),
-        body: body(),
-      )
+        child: Scaffold(
+          backgroundColor: Color(ColorKey.default_bg),
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            title: Row(
+              children: <Widget>[
+                InkWell(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Image.asset("${Constant.image}icBack.png", width: 9.1, height: 16,),
+                ),
+                SizedBox(width: 14.9,),
+                Expanded(
+                  child: Text(
+                    "Daftar Karyawan",
+                    style: TextStyle(fontSize: 12, fontFamily: "Roboto", fontWeight: FontWeight.w500),
+                  )
+                ),
+                InkWell(
+                  onTap: () => showBottomSheetFilter(),
+                  child: Image.asset("${Constant.image}icFilter.png", width: 16, height: 16,),
+                )
+              ],
+            ),
+          ),
+          body: body(),
+        )
+      ),
+      onWillPop: () async {
+        if (isFromPresence) {
+          Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => MainApp()), (Route<dynamic> route) => false
+          );
+          return false;
+        } else {
+          Navigator.of(context).pop();
+          return true;
+        }
+      }
     );
   }
 }

@@ -28,7 +28,6 @@ class PresensiState extends State<Presensi> {
   var currentDate = "Senin\n01 Mei 2019";
   var shiftStart = "08:00";
   var shiftEnd = "17:00";
-  var type = "";
 
   @override
   void initState() {
@@ -44,7 +43,6 @@ class PresensiState extends State<Presensi> {
     currentDate = "${presence.day}\n${presence.date_formated}";
     shiftStart = presence.shift_start.substring(0, 5);
     shiftEnd = presence.shift_end.substring(0, 5);
-    type = presence.is_presence_in;
 
     Timer.periodic(Duration(seconds: 1), (timer) {
       second += 1;
@@ -69,15 +67,15 @@ class PresensiState extends State<Presensi> {
   }
 
   presenceMasuk() {
-    if (type == "1") {
-      showDialogPreparePresence("Anda sudah melakukan presensi masuk, silahkan melakukan presensi pulang.");
-    } else {
+    if (presence.is_presence_in == "0") {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => PresensiMap(presence)));
+    } else {
+      showDialogPreparePresence("Anda sudah melakukan presensi masuk, silahkan melakukan presensi pulang.");
     }
   }
 
   presencePulang() {
-    if (type == "1") {
+    if (presence.is_presence_in == "1") {
       Navigator.of(context).push(MaterialPageRoute(builder: (context) => PresensiMap(presence)));
     } else {
       showDialogPreparePresence("Anda belum melakukan presensi masuk, silahkan melakukan presensi masuk terlebih dahulu.");

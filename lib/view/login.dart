@@ -99,11 +99,12 @@ class LoginState extends State<Login> {
             style: TextStyle(
                 color: Color(ColorKey.brownishGrey),
                 fontSize: 12,
-                fontFamily: "Roboto-Regular"),
+                fontWeight: FontWeight.w400,
+                fontFamily: "Roboto"),
             decoration: InputDecoration(
               border: InputBorder.none,
               hintMaxLines: 1,
-              hintStyle: TextStyle(fontSize: 12, fontFamily: "Roboto-Regular"),
+              hintStyle: TextStyle(fontSize: 12, fontFamily: "Roboto", fontWeight: FontWeight.w400),
               hintText: "e.g ariefzainuri@gmail.com",
             ),
           ),
@@ -130,11 +131,13 @@ class LoginState extends State<Login> {
             style: TextStyle(
                 color: Color(ColorKey.brownishGrey),
                 fontSize: 12,
-                fontFamily: "Roboto-Regular"),
+                fontFamily: "Roboto",
+                fontWeight: FontWeight.w400
+              ),
             decoration: InputDecoration(
               border: InputBorder.none,
               hintMaxLines: 1,
-              hintStyle: TextStyle(fontSize: 12, fontFamily: "Roboto-Regular"),
+              hintStyle: TextStyle(fontSize: 12, fontFamily: "Roboto", fontWeight: FontWeight.w400),
               hintText: "input password...",
             ),
           ),
@@ -153,7 +156,7 @@ class LoginState extends State<Login> {
             child: Text(
               "MASUK",
               style: TextStyle(
-                  fontSize: 12, fontFamily: "Roboto-Bold", color: Colors.white),
+                  fontSize: 12, fontFamily: "Roboto", fontWeight: FontWeight.w700, color: Colors.white),
             ),
           ),
         ),

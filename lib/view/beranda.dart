@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_playground/view/daftar_presensi.dart';
+import 'package:flutter_playground/view/pengajuan_cuti.dart';
 import 'package:flutter_playground/view/presensi.dart';
 import '../constant/ColorKey.dart';
 import '../constant/Constant.dart';
@@ -72,7 +73,7 @@ class BerandaState extends State<Beranda> {
       switch (menu.id) {
         //pengajuan cuti
         case 1:
-          Fluttertoast.showToast(msg: "In development feature");
+          Navigator.of(context).push(MaterialPageRoute(builder: (context) => PengajuanCuti()));
           break;
 
         //pengajuan elmbur
@@ -93,7 +94,7 @@ class BerandaState extends State<Beranda> {
         //presensi list
         case 5:
           Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => DaftarPresensi())
+            MaterialPageRoute(builder: (context) => DaftarPresensi(false))
           );
           break;
 

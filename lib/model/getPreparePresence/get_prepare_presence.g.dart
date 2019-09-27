@@ -20,5 +20,5 @@ Map<String, dynamic> _$GetPreparePresenceToJson(GetPreparePresence instance) =>
     <String, dynamic>{
       'status': instance.status,
       'message': instance.message,
-      'data': instance.data?.toJson()
+      'data': instance.data
     };

@@ -1,3 +1,6 @@
+import 'package:flutter_playground/model/getLeaveType/get_leave_type.dart';
+import 'package:flutter_playground/model/success/success.dart';
+
 import 'base_service.dart';
 import 'package:dio/dio.dart';
 // model
@@ -18,6 +21,7 @@ import '../../model/getPresenceList/get_presence_list.dart';
 import '../request/get_emp_list_request.dart';
 import '../request/get_emp_list_request.dart';
 import '../request/get_presence_list_request.dart';
+import '../request/add_presence_request.dart';
 
 class InformationNetworking extends BaseService {
   Future<GetDashboard> getDashboard() async {
@@ -74,4 +78,13 @@ class InformationNetworking extends BaseService {
   Future<GetPresenceList> getPresenceList(GetPresenceListRequest body) async {
     return await postFormData("${Constant.base_url}api/getPresenceList", body.getBody());
   }
+
+  Future<Success> addPresence(AddPresenceRequest body) async {
+    return await postFormData("${Constant.base_url}api/addPresence", body.getBody());
+  }
+
+  Future<GetLeaveType> getLeaveType() async {
+    return await get("${Constant.base_url}api/getLeaveType");
+  }
+
 }

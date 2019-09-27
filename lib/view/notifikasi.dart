@@ -53,6 +53,17 @@ class NotifikasiState extends State<Notifikasi> {
     showDialog(context: context, builder: (BuildContext context) => dialogLoading());
   }
 
+  Widget testWidget() => Container(
+    child: Padding(
+      padding: EdgeInsets.only(left: 10, right: 10),
+      child: Column(
+        children: <Widget>[
+          Text("test", style: TextStyle(),)
+        ],
+      ),
+    ),
+  );
+
   Widget dialogLoading() => Padding(
     padding: EdgeInsets.only(left: 65, right: 65),
     child: Dialog(
