@@ -1,4 +1,9 @@
+import 'dart:io';
+import 'package:camera/camera.dart';
+import 'package:path/path.dart' show join;
+import 'package:path_provider/path_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_playground/model/getLeaveType/item_get_leave_type.dart';
 import 'package:flutter_playground/networking/service/information_networking.dart';
 import 'package:flutter_playground/view/base_view.dart';
@@ -8,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
 import '../model/getLeaveQuota/item_get_leave_quota.dart';
+import 'package:file_picker/file_picker.dart';
 
 class PengajuanCuti extends StatefulWidget {
   @override
@@ -20,6 +26,7 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
 
   // private properties
   SharedPreferences preferences;
+  var isShowCamera = false;
   var showViewCuti = false;
   var nama = "";
   var unit = "";
@@ -29,6 +36,9 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
   var selectedDelegasiId = "";
   var selectedAtasanId = "";
   var daysCount = "0";
+  var showFile = false;
+  var fileName = "";
+  var filePath = "";
   var is_day = "0";
   var is_range = "0";
   var is_reduced = "0";
@@ -43,6 +53,9 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
   List<ItemGetLeaveQuota> listLeaveQuota = List();
   ItemGetLeaveType selectedCuti;
   List<ItemGetLeaveType> listTypeCuti = List();
+  List<CameraDescription> cameras;
+  CameraDescription firstCamera;
+  CameraController cameraController;
 
   gotoDaftarCuti() {
     Navigator.of(context)
@@ -55,13 +68,68 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
 
     SharedPreferences.getInstance().then((preference){
       preferences = preference;
+      initializeCamera();
       getProfile();
       getLeaveType();
       getLeaveQuota();
     });
   }
 
+  @override
+  void dispose() {
+    cameraController.dispose();
+    super.dispose();
+  }
+
   // FUNCTION //
+
+  initializeCamera() async {
+    cameras = await availableCameras();
+    firstCamera = cameras.first;
+    cameraController = CameraController(
+      firstCamera,
+      ResolutionPreset.veryHigh,
+    );
+    await cameraController.initialize();
+  }
+
+  showCamera() async {
+    hideDialog(context);
+    isShowCamera = true;
+    setState(() {});
+  }
+
+  takePicture() async {
+    try {
+      final path = join((await getTemporaryDirectory()).path, "${DateTime.now()}.png",);
+
+      if (path != null && path == "") {
+        return;
+      }
+
+      await cameraController.takePicture(path);
+      filePath = path;
+      fileName = path.split("/").last;
+      isShowCamera = false;
+      setState(() {});
+    } catch (e) {
+      Fluttertoast.showToast(msg: "There was something error with camera, error: $e");
+      print(e);
+    }
+  }
+
+  openFileExplorer() {
+    try {
+      FilePicker.getFilePath(type: FileType.ANY).then((path) {
+        filePath = path == "" ? "/test.png" : path;
+        fileName = filePath.split("/").last;
+        setState(() {});
+      });
+    } on PlatformException catch (e) {
+      print("error bro:" + e.toString());
+      //Fluttertoast.showToast(msg: "Unsupported operation ${e.toString()}");
+    }
+  }
 
   getLeaveQuota() async {
     showLoading(context);
@@ -201,6 +269,65 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
   }
 
   // WIDGET //
+
+  showDialogFilePicker() {
+    showDialog(
+      context: context,
+      builder: (context) => Padding(
+        padding: EdgeInsets.symmetric(horizontal: 30),
+        child: Dialog(
+          elevation: 0.6,
+          child: Container(
+            height: 89,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(10)),
+              color: Colors.white
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                InkWell(
+                  onTap: () => showCamera(),
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Icon(Icons.camera),
+                        SizedBox(width: 8,),
+                        Text("Take Camera Picture", style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, fontSize: 12),)
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  height: 1,
+                  color: Colors.black12,
+                ),
+                InkWell(
+                  onTap: () {
+                    hideDialog(context);
+                    openFileExplorer();
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(10),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        Icon(Icons.attach_file),
+                        SizedBox(width: 8,),
+                        Text("Pick File", style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, fontSize: 12),)
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      )
+    );
+  }
 
   Widget wTitle(String content) => Text(
     content,
@@ -464,6 +591,51 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
     ),
   );
 
+  Widget wLampiranView() => Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: <Widget>[
+      SizedBox(height: 6.2,),
+      wTitle(("Lampirkan File")),
+      SizedBox(height: 6.2,),
+      InkWell(
+        onTap: showDialogFilePicker,
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: 37,
+          decoration: BoxDecoration(
+            border: Border.all(
+              width: 1,
+              color: Color(ColorKey.veryLightPink)
+            ),
+            color: Colors.white
+          ),
+          child: Center(
+            child: Image.asset("${Constant.image}icUnggahFile.png", width: 66, height: 18,),
+          ),
+        ),
+      ),
+      SizedBox(height: 6.2,),
+      Visibility(
+        visible: fileName != "",
+        child: Text(fileName, maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, fontSize: 12, color: Color(ColorKey.darkSkyBlue)),)
+      ),
+      SizedBox(height: 5.2,),
+      Visibility(
+        visible: filePath != "",
+        child: Center(
+          child: Container(
+            height: 100,
+            width: 100,
+            child: FadeInImage(
+              placeholder: AssetImage("${Constant.image}icAppsIcon.png"),
+              image: filePath != null ? FileImage(File(filePath)) : AssetImage("${Constant.image}icAppsIcon.png")
+            ),
+          ),
+        )
+      )
+    ],
+  );
+
   Widget wRentangTanggal() => Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: <Widget>[
@@ -486,140 +658,186 @@ class PengajuanCutiState extends State<PengajuanCuti> with BaseView {
     ],
   );
 
-  Widget body() => SingleChildScrollView(
-    physics: ClampingScrollPhysics(),
-      child: Padding(
-        padding: EdgeInsets.only(top: 17.8, left: 14.2, right: 14.2, bottom: 12.2),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
-            wTitle("Pegawai"),
-            SizedBox(height: 14.2,),
-            Text(nama, style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.greyishBrown), fontSize: 12),),
-            SizedBox(height: 20.4,),
-            wTitle("Departemen / Unit"),
-            SizedBox(height: 6.2,),
-            Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Color(ColorKey.veryLightBlue),
-                borderRadius: BorderRadius.all(Radius.circular(3)),
-                border: Border.all(
-                  width: 1,
-                  color: Color(ColorKey.veryLightPink)
+  Widget body() => Stack(
+    children: <Widget>[
+      SingleChildScrollView(
+        physics: ClampingScrollPhysics(),
+        child: Padding(
+          padding: EdgeInsets.only(top: 17.8, left: 14.2, right: 14.2, bottom: 12.2),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              wTitle("Pegawai"),
+              SizedBox(height: 14.2,),
+              Text(nama, style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.greyishBrown), fontSize: 12),),
+              SizedBox(height: 20.4,),
+              wTitle("Departemen / Unit"),
+              SizedBox(height: 6.2,),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Color(ColorKey.veryLightBlue),
+                  borderRadius: BorderRadius.all(Radius.circular(3)),
+                  border: Border.all(
+                    width: 1,
+                    color: Color(ColorKey.veryLightPink)
+                  )
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(10),
+                  child: Text(unit, style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.brownishGrey), fontSize: 12),),
+                ),
+              ),
+              SizedBox(height: 7.1,),
+              wTitle("Jenis Cuti"),
+              SizedBox(height: 6.2,),
+              wViewJenisCuti(),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: is_range == "1" && is_day == "1",
+                  child: wRentangTanggal()
                 )
               ),
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: Text(unit, style: TextStyle(fontFamily: "Roboto", fontWeight: FontWeight.w500, color: Color(ColorKey.brownishGrey), fontSize: 12),),
+              SizedBox(height: 6.2,),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: daysCount == "0" ? false : true,
+                  child: wTitle("Maksimal Cuti: $daysCount Hari"),
+                )
               ),
-            ),
-            SizedBox(height: 7.1,),
-            wTitle("Jenis Cuti"),
-            SizedBox(height: 6.2,),          
-            wViewJenisCuti(),
-            Visibility(
-              visible: showViewCuti,
-              child: Visibility(
-                visible: is_range == "1" && is_day == "1",
-                child: wRentangTanggal()
+              SizedBox(height: 6.2,),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: is_reduced == "1" ? true : false,
+                  child: wJatahCutiView(),
+                )
+              ),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: is_day == "1" && is_range == "1" ? false : true,
+                  child: wTanggalCutiView("icCalendar.png", selectedDate, () => showDate("date"), true)
+                )
+              ),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: is_day == "0",
+                  child: wRentangWaktu()
+                )
+              ),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: is_lampiran == "1",
+                  child: wLampiranView()
+                )
+              ),
+              SizedBox(height: 7.1,),
+              Visibility(
+                visible: showViewCuti,
+                child: Visibility(
+                  visible: is_day == "1" && is_range == "0",
+                  child: wSelectedTanggalView()
+                )
+              ),
+              wTitle("Alasan"),
+              SizedBox(height: 6.2,),
+              wViewAlasan(),
+              SizedBox(height: 8.9,),
+              wTitle("Delegasi"),
+              SizedBox(height: 6.2,),
+              wViewDelegasiOrAtasan(selectedDelegasi, () => clickDelegasiView()),
+              SizedBox(height: 12.4,),
+              wTitle("Atasan"),
+              SizedBox(height: 6.2,),
+              wViewDelegasiOrAtasan(selectedAtasan, () => clickAtasanView()),
+              SizedBox(height: 17.8,),
+              containerButtonAction(),
+            ],
+          ),
+        )
+      ),
+      Visibility(
+        visible: isShowCamera,
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: Stack(
+                children: <Widget>[
+                  CameraPreview(cameraController),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      margin: EdgeInsets.all(10),
+                      child: FloatingActionButton(
+                        child: Icon(Icons.camera),
+                        onPressed: () => takePicture()
+                      ),
+                    ),
+                  )
+                ],
               )
-            ),
-            SizedBox(height: 6.2,),
-            Visibility(
-              visible: showViewCuti,
-              child: Visibility(
-                visible: daysCount == "0" ? false : true,
-                child: wTitle("Maksimal Cuti: $daysCount Hari"),
-              )
-            ),
-            SizedBox(height: 6.2,),
-            Visibility(
-              visible: showViewCuti,
-              child: Visibility(
-                visible: is_reduced == "1" ? true : false,
-                child: wJatahCutiView(),
-              )
-            ),
-            Visibility(
-              visible: showViewCuti,
-              child: Visibility(
-                visible: is_day == "1" && is_range == "1" ? false : true,
-                child: wTanggalCutiView("icCalendar.png", selectedDate, () => showDate("date"), true)
-              )
-            ),
-            Visibility(
-              visible: showViewCuti,
-              child: Visibility(
-                visible: is_day == "0",
-                child: wRentangWaktu()
-              )
-            ),
-            SizedBox(height: 7.1,),
-            Visibility(
-              visible: showViewCuti,
-              child: Visibility(
-                visible: is_day == "1" && is_range == "0",
-                child: wSelectedTanggalView()
-              )
-            ),
-            wTitle("Alasan"),
-            SizedBox(height: 6.2,),
-            wViewAlasan(),
-            SizedBox(height: 8.9,),
-            wTitle("Delegasi"),
-            SizedBox(height: 6.2,),
-            wViewDelegasiOrAtasan(selectedDelegasi, () => clickDelegasiView()),
-            SizedBox(height: 12.4,),
-            wTitle("Atasan"),
-            SizedBox(height: 6.2,),
-            wViewDelegasiOrAtasan(selectedAtasan, () => clickAtasanView()),
-            SizedBox(height: 17.8,),
-            containerButtonAction(),
+            )
           ],
-        ),
-      )
-    );
+        )
+      ),
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color(ColorKey.default_bg),
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: Row(
-          children: <Widget>[
-            InkWell(
-              onTap: () => Navigator.of(context).pop(),
-              child: Image.asset(
-                "${Constant.image}icBack.png",
-                width: 9.1,
-                height: 16,
+    return WillPopScope(
+      child: Scaffold(
+        backgroundColor: Color(ColorKey.default_bg),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          title: Row(
+            children: <Widget>[
+              InkWell(
+                onTap: () => Navigator.of(context).pop(),
+                child: Image.asset(
+                  "${Constant.image}icBack.png",
+                  width: 9.1,
+                  height: 16,
+                ),
               ),
-            ),
-            SizedBox(
-              width: 14.9,
-            ),
-            Expanded(
-              child: Text(
-                "Pengajuan Cuti",
-                style: TextStyle(
-                  fontSize: 12,
-                  fontFamily: "Roboto",
-                  fontWeight: FontWeight.w500),
-              )),
-            InkWell(
-              onTap: () => gotoDaftarCuti(),
-              child: Image.asset(
-                "${Constant.image}icHistory.png",
-                width: 16,
-                height: 16,
+              SizedBox(
+                width: 14.9,
               ),
-            )
-          ],
+              Expanded(
+                child: Text(
+                  "Pengajuan Cuti",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: "Roboto",
+                    fontWeight: FontWeight.w500),
+                )),
+              InkWell(
+                onTap: () => gotoDaftarCuti(),
+                child: Image.asset(
+                  "${Constant.image}icHistory.png",
+                  width: 16,
+                  height: 16,
+                ),
+              )
+            ],
+          ),
         ),
+        body: body(),
       ),
-      body: body(),
+      onWillPop: () async {
+        if (isShowCamera) {
+          isShowCamera = false;
+          setState(() {});
+          return false;
+        } else {
+          return true;
+        }
+      }
     );
   }
 }

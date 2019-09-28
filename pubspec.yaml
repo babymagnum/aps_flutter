@@ -25,6 +25,10 @@ dependencies:
   google_maps_flutter: ^0.5.11
   location: ^2.3.5
   intl: ^0.16.0
+  camera:
+  path_provider:
+  path:
+  file_picker: ^1.4.0
   geolocator: '^5.1.1'
   flutter:
     sdk: flutter

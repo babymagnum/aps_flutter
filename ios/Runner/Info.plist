@@ -22,6 +22,15 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>UIBackgroundModes</key>
+    <array>
+       <string>fetch</string>
+       <string>remote-notification</string>
+    </array>
+    <key>NSAppleMusicUsageDescription</key>
+    <string>We need your Apple Musing Permission to search the file in file explorer</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>We need your Photo Library Permission to search the file in file explorer</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
     <string>This application requires location services to work</string>
     <key>NSLocationAlwaysUsageDescription</key>
