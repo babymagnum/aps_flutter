@@ -15,6 +15,7 @@ import '../../model/getGender/get_gender.dart';
 import '../../model/getOrder/get_order.dart';
 import '../../model/success/success.dart';
 import '../../model/getLeaveType/get_leave_type.dart';
+import '../../model/getLeaveQuota/get_leave_quota.dart';
 import '../../model/getPreparePresence/get_prepare_presence.dart';
 import '../../model/getPresenceList/get_presence_list.dart';
 
@@ -130,6 +131,8 @@ class BaseService {
       return GetPresenceList.fromJson(json) as T;
     } else if (T == GetLeaveType) {
       return GetLeaveType.fromJson(json) as T;
+    } else if (T == GetLeaveQuota) {
+      return GetLeaveQuota.fromJson(json) as T;
     } else {
       throw Exception("Unknown class");
     }

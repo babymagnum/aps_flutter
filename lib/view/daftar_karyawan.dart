@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_playground/view/base_view.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
 import '../model/getEmpList/item_emp_list.dart';
@@ -10,13 +11,14 @@ import 'splash_screen.dart';
 import 'profil.dart';
 import '../model/getProfile/item_get_profile.dart';
 import 'filter_daftar_karyawan.dart';
+import 'base_view.dart';
 
 class DaftarKaryawan extends StatefulWidget {
   @override
   DaftarKaryawanState createState() => DaftarKaryawanState();
 }
 
-class DaftarKaryawanState extends State<DaftarKaryawan> {
+class DaftarKaryawanState extends State<DaftarKaryawan> with BaseView {
   
   var listKaryawan = List<ItemEmpList>();
   var currentPage = 0;
@@ -51,55 +53,20 @@ class DaftarKaryawanState extends State<DaftarKaryawan> {
   
   getDaftarKaryawan() async {
     final body = GetEmpListRequest(order, emp_name, unit_id, workarea_id, gender, "$currentPage");
-    showLoading();
+    showLoading(context);
     var daftarKaryawan = await InformationNetworking().getEmpList(body);
-    hideLoading();
+    hideDialog(context);
     if (daftarKaryawan.status == 200) {
       totalPage = daftarKaryawan.data.total_page;
       currentPage += 1;
       listKaryawan.addAll(daftarKaryawan.data.emp);
       setState(() {});
     } else if (daftarKaryawan.status == 401) {
-      preference.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-        ModalRoute.withName('/SplashScreen'));
+      forceLogout(preference, context);
     } else {
       Fluttertoast.showToast(msg: daftarKaryawan.message);
     }
   }
-
-  showLoading() {
-    showDialog(context: context, builder: (BuildContext context) => dialogLoading());
-  }
-  
-  hideLoading() {
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  Widget dialogLoading() => Padding(
-    padding: EdgeInsets.only(left: 65, right: 65),
-    child: Dialog(
-      elevation: 0.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10))),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          color: Colors.white,
-        ),
-        child: Center(
-          child: CircularProgressIndicator(
-            valueColor:
-            AlwaysStoppedAnimation<Color>(Color(ColorKey.aquaBlue)),
-          ),
-        ),
-      ),
-    ),
-  );
   
   Widget wBody() => ListView.builder(
     controller: _scrollController,

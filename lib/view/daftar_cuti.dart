@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
+import 'base_view.dart';
 
 class DaftarCuti extends StatefulWidget {
   @override
   DaftarCutiState createState() => DaftarCutiState();
 }
 
-class DaftarCutiState extends State<DaftarCuti> {
+class DaftarCutiState extends State<DaftarCuti> with BaseView {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

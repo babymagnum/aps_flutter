@@ -13,5 +13,5 @@ class GetLeaveType {
   List<ItemGetLeaveType> data;
 
   factory GetLeaveType.fromJson(Map<String, dynamic> json) => _$GetLeaveTypeFromJson(json);
-    Map<String, dynamic> toJson() => _$GetLeaveTypeToJson(this);
+  Map<String, dynamic> toJson() => _$GetLeaveTypeToJson(this);
 }

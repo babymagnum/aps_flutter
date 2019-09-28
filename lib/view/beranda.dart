@@ -11,13 +11,14 @@ import '../networking/service/information_networking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'daftar_karyawan.dart';
+import 'base_view.dart';
 
 class Beranda extends StatefulWidget {
   @override
   State createState() => BerandaState();
 }
 
-class BerandaState extends State<Beranda> {
+class BerandaState extends State<Beranda> with BaseView {
   //properties
   var listMenuFavorit = List<Menu>();
   var listMenuLainya = List<Menu>();
@@ -146,10 +147,6 @@ class BerandaState extends State<Beranda> {
     }
   }
 
-  hideDialog() {
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
   showDialogSegeraHadir() {
     showDialog(
         context: context,
@@ -192,7 +189,7 @@ class BerandaState extends State<Beranda> {
                     children: <Widget>[
                       Expanded(
                           child: InkWell(
-                        onTap: hideDialog,
+                        onTap: hideDialog(context),
                         child: Container(
                           decoration: BoxDecoration(
                               borderRadius:
@@ -330,11 +327,7 @@ class BerandaState extends State<Beranda> {
         listBerita = dataLatestNews.data;
       });
     } else if (dataLatestNews.status == 401) {
-      preference.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => RootView()),
-          (Route<dynamic> route) => false);
+      forceLogout(preference, context);
     } else {
       Fluttertoast.showToast(msg: dataLatestNews.message);
     }
@@ -350,30 +343,22 @@ class BerandaState extends State<Beranda> {
       jatahCuti = dashboard.total_leave_quota;
       setState(() {});
     } else if (dataDashboard.status == 401) {
-      preference.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => RootView()),
-          (Route<dynamic> route) => false);
+      forceLogout(preference, context);
     } else {
       Fluttertoast.showToast(msg: dataDashboard.message);
     }
   }
 
   preparePresence() async {
-    showLoading();
+    showLoading(context);
     var presence = await InformationNetworking().getPreparePresence();
-    hideDialog();
+    hideDialog(context);
 
     if (presence.status == 200) {
       Navigator.of(context).push(
           MaterialPageRoute(builder: (context) => Presensi(presence.data)));
     } else if (presence.status == 401) {
-      preference.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => RootView()),
-          (Route<dynamic> route) => false);
+      forceLogout(preference, context);
     } else if (presence.status == 406) {
       showDialogPreparePresence(presence.message);
     } else {
@@ -425,7 +410,7 @@ class BerandaState extends State<Beranda> {
                 children: <Widget>[
                   Expanded(
                     child: InkWell(
-                      onTap: hideDialog,
+                      onTap: hideDialog(context),
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius:
@@ -455,11 +440,6 @@ class BerandaState extends State<Beranda> {
           ),
         ),
       );
-
-  showLoading() {
-    showDialog(
-        context: context, builder: (BuildContext context) => dialogLoading());
-  }
 
   Widget dialogLoading() => Padding(
         padding: EdgeInsets.only(left: 65, right: 65),

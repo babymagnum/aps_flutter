@@ -1,6 +1,6 @@
+import 'package:flutter_playground/model/getLeaveQuota/get_leave_quota.dart';
 import 'package:flutter_playground/model/getLeaveType/get_leave_type.dart';
 import 'package:flutter_playground/model/success/success.dart';
-
 import 'base_service.dart';
 import 'package:dio/dio.dart';
 // model
@@ -18,7 +18,6 @@ import '../../model/getOrder/get_order.dart';
 import '../../model/getPreparePresence/get_prepare_presence.dart';
 import '../../model/getPresenceList/get_presence_list.dart';
 // request
-import '../request/get_emp_list_request.dart';
 import '../request/get_emp_list_request.dart';
 import '../request/get_presence_list_request.dart';
 import '../request/add_presence_request.dart';
@@ -85,6 +84,10 @@ class InformationNetworking extends BaseService {
 
   Future<GetLeaveType> getLeaveType() async {
     return await get("${Constant.base_url}api/getLeaveType");
+  }
+
+  Future<GetLeaveQuota> getLeaveQuota() async {
+    return await post("${Constant.base_url}api/getLeaveQuota");
   }
 
 }

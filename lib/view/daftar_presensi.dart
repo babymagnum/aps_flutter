@@ -8,6 +8,7 @@ import '../model/getPresenceList/item_get_presence_list.dart';
 import '../networking/service/information_networking.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'base_view.dart';
 
 class DaftarPresensi extends StatefulWidget {
 
@@ -19,7 +20,7 @@ class DaftarPresensi extends StatefulWidget {
   DaftarPresensiState createState() => DaftarPresensiState(isFromPresence);
 }
 
-class DaftarPresensiState extends State<DaftarPresensi> {
+class DaftarPresensiState extends State<DaftarPresensi> with BaseView {
 
   DaftarPresensiState(this.isFromPresence);
 
@@ -42,18 +43,14 @@ class DaftarPresensiState extends State<DaftarPresensi> {
   }
 
   getPresenceList() async {
-    showLoading();
+    showLoading(context);
     var presence = await InformationNetworking().getPresenceList(GetPresenceListRequest(month, year));
-    hideDialog();
+    hideDialog(context);
     if (presence.status == 200) {
       listPresensi = presence.data;
       setState(() {});
     } else if (presence.status == 401) {
-      preference.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => RootView()),
-          (Route<dynamic> route) => false);
+      forceLogout(preference, context);
     } else {
       Fluttertoast.showToast(msg: presence.message);
     }
@@ -62,37 +59,6 @@ class DaftarPresensiState extends State<DaftarPresensi> {
   showBottomSheetFilter() {
 
   }
-
-  showLoading() {
-    showDialog(context: context, builder: (BuildContext context) => dialogLoading());
-  }
-
-  hideDialog() {
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  Widget dialogLoading() => Padding(
-    padding: EdgeInsets.only(left: 65, right: 65),
-    child: Dialog(
-      elevation: 0.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10))),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          color: Colors.white,
-        ),
-        child: Center(
-          child: CircularProgressIndicator(
-            valueColor:
-            AlwaysStoppedAnimation<Color>(Color(ColorKey.aquaBlue)),
-          ),
-        ),
-      ),
-    ),
-  );
 
   Widget body() => ListView.builder(
     physics: BouncingScrollPhysics(),

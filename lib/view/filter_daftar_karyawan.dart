@@ -9,13 +9,14 @@ import '../model/getOrder/item_get_order.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'splash_screen.dart';
+import 'base_view.dart';
 
 class FilterDaftarKaryawan extends StatefulWidget {
   @override
   FilterDaftarKaryawanState createState() => FilterDaftarKaryawanState();
 }
 
-class FilterDaftarKaryawanState extends State<FilterDaftarKaryawan> {
+class FilterDaftarKaryawanState extends State<FilterDaftarKaryawan> with BaseView {
   SharedPreferences preferences;
   var listUnit = List<ItemGetUnit>();
   var listWorkarea = List<ItemGetWorkarea>();
@@ -40,108 +41,61 @@ class FilterDaftarKaryawanState extends State<FilterDaftarKaryawan> {
     });
   }
 
-  showLoading() {
-    showDialog(
-        context: context, builder: (BuildContext context) => dialogLoading());
-  }
-
-  hideLoading() {
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  Widget dialogLoading() => Padding(
-        padding: EdgeInsets.only(left: 65, right: 65),
-        child: Dialog(
-          elevation: 0.0,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(10))),
-          backgroundColor: Colors.transparent,
-          child: Container(
-            height: 100,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(10)),
-              color: Colors.white,
-            ),
-            child: Center(
-              child: CircularProgressIndicator(
-                valueColor:
-                    AlwaysStoppedAnimation<Color>(Color(ColorKey.aquaBlue)),
-              ),
-            ),
-          ),
-        ),
-      );
-
   getWorkarea() async {
-    showLoading();
+    showLoading(context);
     final workarea = await InformationNetworking().getWorkarea();
-    hideLoading();
+    hideDialog(context);
     if (workarea.status == 200) {
       listWorkarea = workarea.data;
       this.workarea = listWorkarea[0];
       setState(() {});
     } else if (workarea.status == 401) {
-      preferences.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-        ModalRoute.withName('/SplashScreen'));
+      forceLogout(preferences, context);
     } else {
       Fluttertoast.showToast(msg: workarea.message);
     }
   }
 
   getGender() async {
-    showLoading();
+    showLoading(context);
     final gender = await InformationNetworking().getGender();
-    hideLoading();
+    hideDialog(context);
     if (gender.status == 200) {
       listGender = gender.data;
       this.gender = listGender[0];
       setState(() {});
     } else if (gender.status == 401) {
-      preferences.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashScreen()), (Route<dynamic> route) => false);
+      forceLogout(preferences, context);
     } else {
       Fluttertoast.showToast(msg: gender.message);
     }
   }
 
   getOrder() async {
-    showLoading();
+    showLoading(context);
     final order = await InformationNetworking().getOrder();
-    hideLoading();
+    hideDialog(context);
     if (order.status == 200) {
       listOrder = order.data;
       this.order = listOrder[0];
       setState(() {});
     } else if (order.status == 401) {
-      preferences.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => SplashScreen()),
-        ModalRoute.withName('/SplashScreen'));
+      forceLogout(preferences, context);
     } else {
       Fluttertoast.showToast(msg: order.message);
     }
   }
 
   getUnit() async {
-    showLoading();
+    showLoading(context);
     final unit = await InformationNetworking().getUnit();
-    hideLoading();
+    hideDialog(context);
     if (unit.status == 200) {
       listUnit = unit.data;
       this.unit = listUnit[0];
       setState(() {});
     } else if (unit.status == 401) {
-      preferences.setString(Constant.IS_LOGIN, "false");
-      Fluttertoast.showToast(msg: "Session anda berakhir");
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => SplashScreen()),
-          ModalRoute.withName('/SplashScreen'));
+      forceLogout(preferences, context);
     } else {
       Fluttertoast.showToast(msg: unit.message);
     }

@@ -1,17 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../networking/service/information_networking.dart';
 import '../model/getLatestNews/item_latest_news.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'splash_screen.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
+import 'base_view.dart';
 
 class Berita extends StatefulWidget {
   @override
   BeritaState createState() => BeritaState();
 }
 
-class BeritaState extends State<Berita> {
+class BeritaState extends State<Berita> with BaseView {
   var listBerita = List<ItemLatestNews>();
   var currentPage = 0;
   var totalPage = 0;
@@ -19,24 +21,21 @@ class BeritaState extends State<Berita> {
   @override
   void initState() {
     super.initState();
-    getBerita();
+    
+    SharedPreferences.getInstance().then((preference) {
+      getBerita(preference);
+    });
   }
 
-  getBerita() async {
+  getBerita(preference) async {
     var allNews = await InformationNetworking().getAllNews(currentPage);
-
-    print("allnewsmessage ${allNews.message}");
 
     if (allNews.status == 200) {
       setState(() {
         listBerita = allNews.data.news;
       });
     } else if (allNews.status == 401) {
-      Fluttertoast.showToast(msg: "Session telah berakhir");
-
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => SplashScreen()),
-          ModalRoute.withName('/SplashScreen'));
+      forceLogout(preference, context);
     } else {
       Fluttertoast.showToast(msg: allNews.message);
     }
