@@ -3,7 +3,7 @@ import '../constant/ColorKey.dart';
 import '../constant/Constant.dart';
 import 'beranda.dart';
 import 'berita.dart';
-import 'notifikasi.dart';
+import 'notifikasi/notifikasi.dart';
 import 'profil.dart';
 import 'dart:io';
 

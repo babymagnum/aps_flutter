@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_playground/view/base_view.dart';
 import '../constant/Constant.dart';
 import '../constant/ColorKey.dart';
 import '../networking/service/information_networking.dart';
@@ -22,7 +23,7 @@ class Profil extends StatefulWidget {
   ProfilState createState() => ProfilState(isDetailKaryawan, itemProfile);
 }
 
-class ProfilState extends State<Profil> {
+class ProfilState extends State<Profil> with BaseView {
   ProfilState(this.isDetailKaryawan, this.itemProfile);
   
   ItemGetProfile itemProfile;
@@ -44,41 +45,10 @@ class ProfilState extends State<Profil> {
     });
   }
 
-  showLoading() {
-    showDialog(context: context, builder: (BuildContext context) => dialogLoading());
-  }
-
-  hideLoading() {
-    Navigator.of(context, rootNavigator: true).pop();
-  }
-
-  Widget dialogLoading() => Padding(
-    padding: EdgeInsets.only(left: 65, right: 65),
-    child: Dialog(
-      elevation: 0.0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(10))),
-      backgroundColor: Colors.transparent,
-      child: Container(
-        height: 100,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(10)),
-          color: Colors.white,
-        ),
-        child: Center(
-          child: CircularProgressIndicator(
-            valueColor:
-            AlwaysStoppedAnimation<Color>(Color(ColorKey.aquaBlue)),
-          ),
-        ),
-      ),
-    ),
-  );
-
   getProfileByEmpId() async {
-    showLoading();
+    showLoading(context);
     var profile = await InformationNetworking().getProfileByEmpId(itemProfile.emp_id);
-    hideLoading();
+    hideDialog(context);
     setProfileView(profile);
   }
   
@@ -97,16 +67,16 @@ class ProfilState extends State<Profil> {
   }
   
   getProfile() async {
-    showLoading();
+    showLoading(context);
     var profile = await InformationNetworking().getProfile();
-    hideLoading();
+    hideDialog(context);
     setProfileView(profile);
   }
 
   logout() async {
-    showLoading();
+    showLoading(context);
     var logout = await AuthenticationNetworking().logout();
-    hideLoading();
+    hideDialog(context);
 
     if (logout.status == 200) {
       preference.setString(Constant.IS_LOGIN, "false");
