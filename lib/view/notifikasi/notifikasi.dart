@@ -2,15 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_playground/view/base_view.dart';
 import 'package:flutter_playground/view/notifikasi/notifikasi_bloc.dart';
-import 'package:flutter_playground/view/notifikasi/notifikasi_event.dart';
-import 'package:flutter_playground/view/notifikasi/notifikasi_state_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../constant/Constant.dart';
 import '../../constant/ColorKey.dart';
 import '../../model/getNotificationList/item_notification_list.dart';
-import '../../networking/service/information_networking.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../splash_screen.dart';
 
 class Notifikasi extends StatefulWidget {
   @override
@@ -142,16 +138,40 @@ class NotifikasiState extends State<Notifikasi> with BaseView {
     );
   }
 
+  Widget wBackgroundLoading(bool isLoading) => Visibility(
+    visible: isLoading,
+    child: Column(
+      children: <Widget>[
+        Expanded(
+          child: Container(
+            color: Colors.black12.withOpacity(0.8),
+            child: Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Color(ColorKey.darkSkyBlue)),
+              ),
+            ),
+          )
+        )
+      ],
+    )
+  );
+
   Widget body() => BlocBuilder(
     bloc: _notifikasiBloc,
     builder: (context, NotifikasiStateBloc notifikasiState) {
+
       if (notifikasiState.isExpired)
         forceLogout(_preferences, context);
-      else if (notifikasiState.isError)
+
+      if (notifikasiState.isError)
         Fluttertoast.showToast(msg: notifikasiState.errorMessage);
 
       return Stack(
-        children: <Widget>[wNoNotifikasiView(notifikasiState.isEmpty, notifikasiState.errorMessage), wListNotifikasi(context, notifikasiState.listNotifikasi)],
+        children: <Widget>[
+          wNoNotifikasiView(notifikasiState.isEmpty, notifikasiState.errorMessage),
+          wListNotifikasi(context, notifikasiState.listNotifikasi),
+          wBackgroundLoading(notifikasiState.isLoading)
+        ],
       );
     }
   );

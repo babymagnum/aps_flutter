@@ -44,7 +44,7 @@ mixin BaseView {
             child: Center(
               child: CircularProgressIndicator(
                 valueColor:
-                    AlwaysStoppedAnimation<Color>(Color(ColorKey.aquaBlue)),
+                    AlwaysStoppedAnimation<Color>(Color(ColorKey.darkSkyBlue)),
               ),
             ),
           ),
